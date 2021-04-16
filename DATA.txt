@@ -1,15 +1,16 @@
 # Data List
 
-BAND CELLS                     -   0
-BASOPHILS                      -   3
-BLAST CELLS                    -  17
-EOSINOPHILS                    -  41
-LYMPHOCYTES                    -   9
-MONOCYTES                      -   9
-MYELOCYTE-METAMYELOCYTE        -   0
-NEUTROPHILS                    -  61
-PROMYELOCYTES                  -   0
+BAND CELLS                     -   14
+BASOPHILS                      -    9
+BLAST CELLS                    -   17
+EOSINOPHILS                    -   41
+LYMPHOCYTES                    -    9
+METAMYELOCYTE                  -    5
+MONOCYTES                      -    9
+MYELOCYTE                      -   16
+NEUTROPHILS                    -   61
+PROMYELOCYTES                  -    5
 
 
-------------------------------------
-TOTAL                          - 140
+------------------------------- -----
+TOTAL                          -  186
