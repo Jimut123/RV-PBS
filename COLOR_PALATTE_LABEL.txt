@@ -1,2 +1,13 @@
 This is the proposed color palatte labels for the dataset:
-
+-----------------------------------------------------------
+"BAND CELLS"    = [  0,      0,   126]
+"BASOPHILS"     = [  0,    126,     0]
+"BLAST CELLS"   = [  0,    126,   126]
+"EOSINOPHILS"   = [  126,    0,     0]
+"LYMPHOCYTES"   = [  126,    0,   126]
+"METAMYELOCYTE" = [  126,  126,     0]
+"MONOCYTES"     = [  126,  126,   126]
+"MYELOCYTE"     = [   0,     0,   252]
+"NEUTROPHILS"   = [   0,   252,     0]
+"PROMYELOCYTES" = [   0,   252,   252]
+-------------------------------------------------------------
