@@ -1,0 +1,3 @@
+dvc add
+dvc push
+
