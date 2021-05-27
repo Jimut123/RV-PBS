@@ -77,6 +77,29 @@ def parse_anno_file(cvat_xml,image_name):
     return anno
 
 
+folder_map = {}
+rev_folder_map = {}
+folder_map = {
+        "band": "BAND CELLS",
+        "basophil": "BASOPHILS",
+        "blast": "BLAST CELLS",
+        "eosinophil": "EOSINOPHILS",
+        "lymphocyte": "LYMPHOCYTES",
+        "metamyelocyte": "METAMYELOCYTES",
+        "monocyte": "MONOCYTES",
+        "myelocyte": "MYELOCYTE",
+        "neutrophil": "NEUTROPHILS",
+        "promyelocyte": "PROMYELOCYTES"
+        }
+
+#print(folder_map)
+
+for item in folder_map:
+    rev_folder_map[folder_map[item]] = item
+
+#print(rev_folder_map)
+
+
 
 all_folders_root = 'Blood SmearAnalysis'
 all_folders = glob.glob('{}/*'.format(all_folders_root))
@@ -104,7 +127,7 @@ for folders in tqdm(all_folders):
     for valid_image_names in all_valid_files_per_folder:
         subfolder_name = valid_image_names.split('/')[1]
         # print("--"*50,subfolder_name)
-        subfolder_save = SAVE_FOLDER_NAME+"/"+subfolder_name
+        subfolder_save = SAVE_FOLDER_NAME+"/"+rev_folder_map[subfolder_name]
         if not os.path.exists(subfolder_save):
             os.makedirs(subfolder_save)
         valid_image_names_ = valid_image_names.split('/')[-1]
@@ -132,7 +155,7 @@ for folders in tqdm(all_folders):
         count = 0
         for shape in im_shapes:
             count += 1
-            save_name = SAVE_FOLDER_NAME+"/"+subfolder_name+"/"+name_+"_"+str(count)+".jpg"
+            save_name = SAVE_FOLDER_NAME+"/"+rev_folder_map[subfolder_name]+"/"+name_+"_"+str(count)+".jpg"
             # print("Save Name = ",save_name)
             #print(shape)  
             points = shape['points']  
