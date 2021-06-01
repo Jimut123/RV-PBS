@@ -13,19 +13,98 @@ import random
 import shutil
 import argparse
 import numpy as np
+from tqdm import tqdm
 from lxml import etree
 from tqdm import tqdm
 from PIL import Image, ImageDraw
 import matplotlib.pyplot as plt
 from scipy.interpolate import UnivariateSpline
 
+from skimage.util import random_noise
+
+
+
+print("LOADING BG TEXTURES...")
+NORMAL_BG_NAMES = glob.glob('normal_bg/*.jpg')
+STAIN_BG_NAMES = glob.glob('stain_bg/*.jpg')
+
+
 def _create_LUT_8UC1(x, y):
   spl = UnivariateSpline(x, y)
   return spl(range(256))
 
+def get_random_vector():
+    # to generate a random one hot vector of size
+    # positions are given by vectors
+    # 0 - apply_normal_background_image(img) or apply_stain_background_image(img)
+    # 1 - zoom_out_image(img, zoom_percentage)
+    # 2 - flip_image(img, opt)
+    # 3 - apply_color_transformation_image(img, val1, val2, val3)
+    # 4 - gaussian_blur_repeatitive_image(img, kernel_size,n_iter)
+    # 5 - rotate_image(img, angle)
+    # 6 - change_contrast_image(img, alpha)
+    # 7 - change_brightness_image(img, beta)
+    # 8 - apply_noise_gaussian_image(img)
+    # 9 - apply_noise_salt_and_pepper(img, amount)
+    random_vector = []
+    for i in range(11):
+        random_vector.append(random.randint(0,1))
+    print(random_vector)
+    print(len(random_vector))
+    return random_vector
+
 
 # some of the functions to do image augmentation for augmenting the entire 
 # dataset for performing domain adaptation
+
+
+# This functions should be added before any step
+def apply_normal_background_image(img):
+    # print(img[0][0][0])
+    background_image = cv2.imread(NORMAL_BG_NAMES[random.randint(0,(len(NORMAL_BG_NAMES)-1))])
+    background_image = cv2.cvtColor(background_image, cv2.COLOR_BGR2RGB)
+    im_h, im_w, n_c = img.shape
+    background_image = cv2.resize(background_image,(im_w,im_h))
+    # print(background_image.shape)
+    # print(img.shape)
+    # median blur to remove noises
+    img_blurred = cv2.medianBlur(img, 111)
+    background_image[img_blurred > 0] = 0
+    background_added_image = background_image + img
+    return background_added_image
+
+# This functions should be added before any step
+def apply_stain_background_image(img):
+    # apply background with possible stain
+    background_image = cv2.imread(STAIN_BG_NAMES[random.randint(0,(len(STAIN_BG_NAMES)-1))])
+    background_image = cv2.cvtColor(background_image, cv2.COLOR_BGR2RGB)
+    im_h, im_w, n_c = img.shape
+    background_image = cv2.resize(background_image,(im_w,im_h))
+    # print(background_image.shape)
+    # print(img.shape)
+    # median blur to remove noises
+    img_blurred = cv2.medianBlur(img, 111)
+    background_image[img_blurred > 0] = 0
+    background_added_image = background_image + img
+    return background_added_image
+
+
+def zoom_out_image(img, zoom_percentage):
+    # zooms out an image by certain percentage
+    # please keep this between 0.5 - 0.9
+    im_h, im_w, im_c = img.shape
+    resized_height, resized_width = int(zoom_percentage*im_h), int(zoom_percentage*im_w)
+    # print(resized_height,",",resized_width)
+    img = cv2.resize(img, (resized_height,resized_width))
+    # make the image to original size
+    delta_w = im_h - resized_height
+    delta_h = im_w - resized_width
+    top, bottom = delta_h//2, delta_h-(delta_h//2)
+    left, right = delta_w//2, delta_w-(delta_w//2)
+    color = [0, 0, 0]
+    new_im = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
+    return new_im
+
 
 
 def flip_image(img, opt):
@@ -74,23 +153,6 @@ def rotate_image(img, angle):
 #     pass
 
 
-def zoom_out_image(img, zoom_percentage):
-    # zooms out an image by certain percentage
-    # please keep this between 0.5 - 0.9
-    im_h, im_w, im_c = img.shape
-    resized_height, resized_width = int(zoom_percentage*im_h), int(zoom_percentage*im_w)
-    # print(resized_height,",",resized_width)
-    img = cv2.resize(img, (resized_height,resized_width))
-    # make the image to original size
-    delta_w = im_h - resized_height
-    delta_h = im_w - resized_width
-    top, bottom = delta_h//2, delta_h-(delta_h//2)
-    left, right = delta_w//2, delta_w-(delta_w//2)
-    color = [0, 0, 0]
-    new_im = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
-    return new_im
-
-
 def change_contrast_image(img, alpha):
     # change contrast of an image
     # alpha = 1.5 # Contrast control (1.0-3.0)
@@ -107,42 +169,29 @@ def change_brightness_image(img, beta):
     return adjusted
 
 
-def apply_noise_gaussian_image(img, mean, var, sigma):
+def apply_noise_gaussian_image(img):
     # apply salt and pepper noise in an image
-    row,col,ch= img.shape
-    gauss = np.random.normal(mean,sigma,(row,col,ch))*255
-    # print(gauss.max())
-    # print(img.max())
-    gauss = gauss.reshape(row,col,ch)
-    noisy = 0.15*img + 0.85*gauss
-    noisy_img_clipped = np.clip(noisy, 0, 255)  # we might get out of bounds due to noise
-    print(noisy_img_clipped.max(),noisy_img_clipped.min())
-    return noisy_img_clipped
+    noise_img = random_noise(img, mode='gaussian', seed=None, clip=True)
+
+    # The above function returns a floating-point image
+    # on the range [0, 1], thus we changed it to 'uint8'
+    # and from [0,255]
+    noise_img = np.array(255*noise_img, dtype = 'uint8')
+    # print(noise_img.max(), noise_img.min())
+    return noise_img
 
 
-def apply_noise_salt_and_pepper(img, s_vs_p, amount):
-    # apply a background by certain amount on the image
-    # the background generally contains RBCs
-    row,col,ch = img.shape
-    out = np.copy(img)
-    # Salt mode
-    num_salt = np.ceil(amount * img.size * s_vs_p)
-    coords = [np.random.randint(0, i - 1, int(num_salt)) for i in img.shape]
-    out[np.array(coords)] = 255
-    # Pepper mode
-    num_pepper = np.ceil(amount* img.size * (1. - s_vs_p))
-    coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in img.shape]
-    out[np.array(coords)] = 0
-    return out
+def apply_noise_salt_and_pepper(img, amount):
+    # apply salt and pepper noise to the image
 
+    noise_img = random_noise(img, mode='s&p',amount=0.3)
 
-def apply_normal_background_image(img):
-    pass
+    # The above function returns a floating-point image
+    # on the range [0, 1], thus we changed it to 'uint8'
+    # and from [0,255]
+    noise_img = np.array(255*noise_img, dtype = 'uint8')
+    return noise_img
 
-
-def apply_stain_background_image(img):
-    # apply background with possible stain
-    pass
 
 
 def show_img(img):
@@ -159,54 +208,95 @@ for folder in folders:
         if 'yml' not in image_name:
             image = cv2.imread(image_name,cv2.IMREAD_COLOR)
 
-            # show_img(flip_image(image, opt=0))
-            # show_img(flip_image(image, opt=1))
-            # show_img(flip_image(image, opt=-1)) 
-            # [0, 30,  80, 120, 192]
+            for iter_ in tqdm(range(100)):
+                vector_ = get_random_vector()
 
-            # # applying cooler transformations
-            # show_img(apply_color_transformation_image(image, [0, 64, 128, 192, 256], [0, 30,  80, 120, 192], [0, 40, 95, 142.5, 208]))
-            # show_img(apply_color_transformation_image(image, [0, 64, 128, 192, 256], [0, 30,  80, 120, 192], [0, 70, 140, 210, 256]))
-            # show_img(apply_color_transformation_image(image, [0, 64, 128, 192, 256], [0, 70,  100, 140, 192], [0, 110, 180, 210, 256]))
-            
-            # applying cooling transformations
-            # show_img(apply_color_transformation_image(image, [0, 64, 128, 192, 256], [0, 40, 95, 142.5, 208], [0, 30,  80, 120, 192]))
-            # show_img(apply_color_transformation_image(image, [0, 64, 128, 192, 256], [0, 70, 140, 210, 256], [0, 30,  80, 120, 192]))
-            # show_img(apply_color_transformation_image(image, [0, 64, 128, 192, 256], [0, 110, 180, 210, 256], [0, 70,  100, 140, 192]))
-            
-            # show_img(gaussian_blur_repeatitive_image(image, (5,5), 15))
-            # show_img(gaussian_blur_repeatitive_image(image, (11,11), 15))
-            # show_img(gaussian_blur_repeatitive_image(image, (17,17), 15))
+                dummy_count = 0
+                for choice in vector_:
+                    # make the choices according to the vector
+                    if choice == 0 and dummy_count == 0:
+                        # apply normal background to the image
+                        image_out = apply_normal_background_image(image)
+                    if choice == 1 and dummy_count == 0:
+                        # apply stain background to the image
+                        image_out = apply_stain_background_image(image)
+                    
+                    if choice == 1 and dummy_count == 1:
+                        # apply zoom out on an image
+                        # generates random value between 0.49 to 1.0
+                        # probably will be better if this is aliased with other function
+                        gen_random = (random.randint(7,10)/10)*(random.randint(7,10)/10)
+                        image_out = zoom_out_image(image_out, gen_random)
+                    
+                    if choice == 1 and dummy_count == 2:
+                        image_out =  flip_image(image_out, opt=random.randint(-1,1))
+                    
+                    if choice == 1 and dummy_count == 3:
+                        get_ch = random.randint(0,5)
+                        # applying cooler transformations
+                        if get_ch == 0:
+                            image_out =  apply_color_transformation_image(image_out, [0, 64, 128, 192, 256], [0, 30,  80, 120, 192], [0, 40, 95, 142.5, 208])
+                        if get_ch == 1:
+                            image_out = apply_color_transformation_image(image_out, [0, 64, 128, 192, 256], [0, 30,  80, 120, 192], [0, 70, 140, 210, 256])
+                        if get_ch == 2:
+                            image_out = apply_color_transformation_image(image_out, [0, 64, 128, 192, 256], [0, 70,  100, 140, 192], [0, 110, 180, 210, 256])
+                        
+                        # apply warmer transofrmations
+                        if get_ch == 3:
+                            image_out = apply_color_transformation_image(image_out, [0, 64, 128, 192, 256], [0, 70,  100, 140, 192], [0, 110, 180, 210, 256])
+                        if get_ch == 4:
+                            image_out = apply_color_transformation_image(image_out, [0, 64, 128, 192, 256], [0, 70, 140, 210, 256], [0, 30,  80, 120, 192])
+                        if get_ch == 5:
+                            image_out = apply_color_transformation_image(image_out, [0, 64, 128, 192, 256], [0, 110, 180, 210, 256], [0, 70,  100, 140, 192])
+                    
+                    if choice == 1 and dummy_count == 4:
+                        # apply gaussian blur on images till limit
+                        get_ch = random.randint(0,2)
+                        if get_ch == 0:
+                            image_out = gaussian_blur_repeatitive_image(image_out, (5,5), 15)
+                        if get_ch == 1:
+                            image_out = gaussian_blur_repeatitive_image(image_out, (11,11), 15)
+                        if get_ch == 2:
+                            image_out = gaussian_blur_repeatitive_image(image_out, (17,17), 15)
+                    
+                    if choice == 1 and dummy_count == 5:
+                        # rotate an image by certain angle
 
-            # show_img(rotate_image(image, random.randint(0,90)))
-            # show_img(rotate_image(image, random.randint(90,180)))
-            # show_img(rotate_image(image, random.randint(180,270)))
-            # show_img(rotate_image(image, random.randint(270,360)))
-            
-            # for zoom_out in range(10):
-            #     # generates random value between 0.49 to 1.0
-            #     # probably will be better if this is aliased with other function
-            #     gen_random = (random.randint(7,10)/10)*(random.randint(7,10)/10)
-            #     show_img(zoom_out_image(image, gen_random)
+                        get_ch = random.randint(0,3)
+                        if get_ch == 0:
+                            image_out = rotate_image(image_out, random.randint(0,90))
+                        if get_ch == 1:
+                            image_out = rotate_image(image_out, random.randint(90,180))
+                        if get_ch == 2:
+                            image_out = rotate_image(image_out, random.randint(180,270))
+                        if get_ch == 3:
+                            image_out = rotate_image(image_out, random.randint(270,360))
+                    
+                    if choice == 1 and dummy_count == 6:
+                        # change the contrast of the image
+                        # change alpha from (1.0-3.0) by a random number
+                        get_random = (random.randint(100,173)/100) * (random.randint(100,173)/100)
+                        image_out = change_contrast_image(image_out, get_random)
+                    
+                    if choice == 1 and dummy_count == 7:
+                        # Change the brightness of the image
+                        image_out = change_brightness_image(image_out, random.randint(1,75))
+                        pass
 
-            # for contrast in range(100):
-            #     # change alpha from (1.0-3.0) by a random number
-            #     get_random = (random.randint(100,173)/100) * (random.randint(100,173)/100)
-            #     # print(get_random)
-            #     #show_img(change_contrast_image(image, get_random))
-            
-            # for brightness in range(10):
-            #     show_img(change_brightness_image(image, random.randint(1,75)))
-            # mean = 0
-            # var = 0.01
-            # sigma = var**0.5
-            # show_img(apply_noise_gaussian_image(image, mean, var, sigma))
+                    if choice == 1 and dummy_count == 8:
+                        # apply Gaussian Noise
+                        image_out = apply_noise_gaussian_image(image_out)
+                    
+                    if choice == 1 and dummy_count == 9:
+                        # apply salt and pepper noise
+                        amount = 1
+                        image_out = apply_noise_salt_and_pepper(image_out, amount)
+                    dummy_count += 1
+                
+                # show_img(image_out)
+                save_name = image_name.split('.')[0]+"_"+str(iter_)+".jpg"
+                cv2.imwrite(save_name,image_out)
 
-            s_vs_p = 0.5
-            amount = 0.004
-            show_img(apply_noise_salt_and_pepper(image, s_vs_p, amount))
-            break
-    break
 
 
 
