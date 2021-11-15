@@ -4,13 +4,17 @@ BAND CELLS                     -   60
 BASOPHILS                      -   26
 BLAST CELLS                    -   68
 EOSINOPHILS                    -   67
-LYMPHOCYTES                    -   60
+LYMPHOCYTES                    -   61
 METAMYELOCYTE                  -   31
-MONOCYTES                      -   53
+MONOCYTES                      -   54
 MYELOCYTE                      -   83
 NEUTROPHILS                    -   99
 PROMYELOCYTES                  -   36
 
 
 ------------------------------- -----
-TOTAL                          -  583
+TOTAL                          -  585
+
+TEST MIXED 		       -  144
+-------------------------------------
+				  727
