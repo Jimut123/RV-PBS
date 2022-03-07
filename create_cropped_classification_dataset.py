@@ -126,17 +126,20 @@ for folders in tqdm(all_folders):
     # print("oo"*50,file_name)
     for valid_image_names in all_valid_files_per_folder:
         subfolder_name = valid_image_names.split('/')[1]
-        # print("--"*50,subfolder_name)
+        #print("--"*50,subfolder_name)
         subfolder_save = SAVE_FOLDER_NAME+"/"+rev_folder_map[subfolder_name]
         if not os.path.exists(subfolder_save):
             os.makedirs(subfolder_save)
         valid_image_names_ = valid_image_names.split('/')[-1]
-        # print("Image Name = ",valid_image_names_)
+        #print("Image Name = ",valid_image_names_)
         annot = parse_anno_file(file_name,valid_image_names_)
-        # print("valid image names_ = ",valid_image_names_)
-        # print("Annotation = ",annot)
-        # print("--"*20)
-        annot = annot[0]
+        #print("valid image names_ = ",valid_image_names_)
+        #print("Annotation = ",annot)
+        #print("--"*20)
+        try:
+            annot = annot[0]
+        except:
+            continue
         # print(json.dumps(annot, indent=4, sort_keys=True))
         im_height = annot['height']
         im_width = annot['width']
@@ -206,5 +209,6 @@ for folders in tqdm(all_folders):
             cv2.imwrite(save_name,np.array(img_extract))
             # newIm.save(save_name)
             # break
+
 
 
