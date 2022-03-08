@@ -5,6 +5,7 @@
 # May, 11, 2021
 # A script to collect all the slides and convert to a classification dataset
 # by parsing each of the annotation files from each of the folders.
+# Please run this in the same directory as RV-PBS folder.
 # ============================================================================
 
 import os
