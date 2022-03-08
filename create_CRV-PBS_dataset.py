@@ -76,6 +76,9 @@ def parse_anno_file(cvat_xml,image_name):
     # print("Annotation:",anno)
     return anno
 
+FOLDERS_LIST = ["MYELOCYTE", "BAND CELLS", "NEUTROPHILS", "BASOPHILS", "EOSINOPHILS", "PROMYELOCYTES", "BLAST CELLS", "LYMPHOCYTES", "METAMYELOCYTES", "MONOCYTES"]
+
+
 
 folder_map = {}
 rev_folder_map = {}
@@ -105,7 +108,10 @@ all_folders_root = 'RV-PBS'
 all_folders = glob.glob('{}/*'.format(all_folders_root))
 
 for folders in tqdm(all_folders):
+    if folders.split('/')[-1] not in FOLDERS_LIST:
+        continue
     # print(folders)
+    
     all_files_per_folder = glob.glob('{}/*'.format(folders))
     #print(all_files_per_folder)
     all_valid_files_per_folder = []
