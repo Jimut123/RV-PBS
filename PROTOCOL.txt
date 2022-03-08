@@ -1,3 +1,0 @@
-If image is as IMG_2934.jpg
-
-Then add mask as IMG_2934_mask.jpg
