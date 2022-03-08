@@ -1,3 +1,3 @@
-# Dataset for Blood Smear
+# The RV-PBS dataset
 
-This will host the dataset along with segmentation masks.
+This repository hosts the dataset created for the paper titled “Instance Segmentation of Peripheral Blood Smear and Refining Classification via Domain Adaptation“.
