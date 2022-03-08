@@ -101,7 +101,7 @@ for item in folder_map:
 
 
 
-all_folders_root = 'Blood SmearAnalysis'
+all_folders_root = 'RV-PBS'
 all_folders = glob.glob('{}/*'.format(all_folders_root))
 
 for folders in tqdm(all_folders):
