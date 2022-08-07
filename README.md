@@ -4,11 +4,15 @@ This repository hosts the dataset created for the paper titled ***“Instance Se
 
 The dataset is annotated using [CVAT](https://github.com/openvinotoolkit/cvat). We are planning to release an extended version of this dataset soon. If you are a haematologist, then you could help us by annotating and adding more data. **Please make sure that the data is ethically cleared before uploading new data in public servers, such as Github.**
 
+### Snapshot of dataset creation using CVAT 
+
 <center>
   <img src="https://github.com/Jimut123/RV-PBS/blob/main/assets/cvat_mask_basophil.png">
 </center>
 
 ## Some relevant stuffs from the paper
+
+**Please study the paper for getting more insights. Here are some snapshots from the paper:**
 
 ### Smear slides cropped dataset
 
