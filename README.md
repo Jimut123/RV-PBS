@@ -1,6 +1,6 @@
 # The RV-PBS dataset
 
-This repository hosts the dataset created for the paper titled ***“Instance Segmentation of Peripheral Blood Smear and Refining Classification via Domain Adaptation“.***
+## This repository hosts the dataset created for the paper titled ***[Advancing instance segmentation and WBC classification in peripheral blood smear through domain adaptation: A study on PBC and the novel RV-PBS datasets](https://www.sciencedirect.com/science/article/pii/S0957417424005268?via%3Dihub#d1e3975).***
 
 ***
 
@@ -106,5 +106,16 @@ Submit an issue.
 ## If you find this work useful, please consider citing
 
 ```
-
+@article{PAL2024123660,
+title = {Advancing instance segmentation and WBC classification in peripheral blood smear through domain adaptation: A study on PBC and the novel RV-PBS datasets},
+journal = {Expert Systems with Applications},
+pages = {123660},
+year = {2024},
+issn = {0957-4174},
+doi = {https://doi.org/10.1016/j.eswa.2024.123660},
+url = {https://www.sciencedirect.com/science/article/pii/S0957417424005268},
+author = {Jimut Bahan Pal and Aniket Bhattacharyea and Debasis Banerjee and Br. Tamal Maharaj},
+keywords = {Automated blood test, Detection, Domain adaptation, Instance segmentation, Peripheral blood smear},
+abstract = {Automating blood cell counting and detection from smear slides holds significant potential for aiding doctors in disease diagnosis through blood tests. However, existing literature has not adequately addressed using whole slide data in this context. This study introduces the novel RV-PBS dataset, comprising ten distinct peripheral blood smear classes, each featuring multiple multi-class White Blood Cells per slide, specifically designed, for instance segmentation benchmarks. While conventional instance segmentation models like Mask R-CNN exhibit promising results in segmenting medical artifact instances, they face challenges in scenarios with limited samples and class imbalances within the dataset. This challenge prompted us to explore innovative techniques such as domain adaptation using a similar dataset to enhance the classification accuracy of Mask R-CNN, a novel approach in the domain of medical image analysis. Our study has successfully established a comprehensive pipeline capable of segmenting, detecting, and classifying blood samples from slides, striking an optimal balance between computational complexity and accurate classification of medical artifacts. This advancement enables precise cell counting and classification, facilitating doctors in refining their diagnostic analyses.}
+}
 ```
