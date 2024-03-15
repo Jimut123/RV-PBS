@@ -1,4 +1,4 @@
-# The RV-PBS dataset
+# The RV-PBS (Ramakrishna Vivekananda Peripheral Blood Smear) dataset
 
 ## This repository hosts the dataset created for the paper titled ***[Advancing instance segmentation and WBC classification in peripheral blood smear through domain adaptation: A study on PBC and the novel RV-PBS datasets](https://www.sciencedirect.com/science/article/pii/S0957417424005268?via%3Dihub#d1e3975).***
 
