@@ -2,6 +2,8 @@
 
 ## This repository hosts the dataset created for the paper titled ***[Advancing instance segmentation and WBC classification in peripheral blood smear through domain adaptation: A study on PBC and the novel RV-PBS datasets](https://www.sciencedirect.com/science/article/pii/S0957417424005268?via%3Dihub#d1e3975).***
 
+## Find the Figshare version of the [dataset here](https://figshare.com/articles/dataset/DATA-CELLSEG/23804523)
+
 ***
 
 The dataset is annotated using [CVAT](https://github.com/openvinotoolkit/cvat). We are planning to release an extended version of this dataset soon. If you are a haematologist, then you could help us by annotating and adding more data. **Please make sure that the data is ethically cleared before uploading new data in public servers, such as Github.**
